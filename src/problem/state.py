@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from .package import Package
 from .truck import Truck
-
+from .constraints import get_constraints
 
 @dataclass(frozen=True)
 class State:
@@ -64,7 +64,16 @@ class State:
         for i, p in changes.items():
             new_packages[i] = p
         return replace(self, packages=tuple(new_packages))
-
+    
+    def objective_function(self) -> int:
+        constraint = get_constraints(self, check_fragile=True)
+        
+        if constraint["overlap"] > 0 or constraint["floating"] > 0 or constraint["fragile"] > 0 or constraint["weight"] > 0:
+            return 0
+        
+        wasted_value =  sum(p.volume for p in self.packages if not self.truck.contains(p))
+        return self.total_value() - wasted_value
+    
     @classmethod
     def random(
         cls,
