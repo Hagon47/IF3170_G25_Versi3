@@ -4,7 +4,6 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from .package import Package
 from .truck import Truck
-from .constraints import get_constraints
 
 @dataclass(frozen=True)
 class State:
@@ -66,12 +65,14 @@ class State:
         return replace(self, packages=tuple(new_packages))
     
     def objective_function(self) -> int:
-        constraint = get_constraints(self, check_fragile=True)
+        from .constraints import get_constraints
+        
+        constraint = get_constraints(self, check_fragile=False)
         
         if constraint["overlap"] > 0 or constraint["floating"] > 0 or constraint["fragile"] > 0 or constraint["weight"] > 0:
             return 0
         
-        wasted_value =  sum(p.volume for p in self.packages if not self.truck.contains(p))
+        wasted_value =  sum(p.value for p in self.packages if not self.truck.contains(p))
         return self.total_value() - wasted_value
     
     @classmethod
@@ -82,22 +83,60 @@ class State:
         rng: Optional[random.Random] = None,
         p_inside: float = 0.5,
     ) -> "State":
+        from .constraints import is_valid
         rng = rng or random.Random()
+        max_attempts = 100 # ganti ganti aja ges
+
+        init_pack = tuple(p.remove().get_rotation(rng.randrange(len(Package.ORIENTATIONS))) for p in packages)
+
+        state = cls(packages=init_pack, truck=truck)
+
+        order = list(range(len(state.packages)))
+        rng.shuffle(order)
+
         truck_width, truck_length, truck_height = truck.dimensions
 
-        new_packages = []
-        for p in packages:
-            p = p.remove().get_rotation(rng.randrange(len(Package.ORIENTATIONS)))
-            w, l, h = p.get_dimensions
-            if rng.random() < p_inside and truck.fit((w, l, h)):
-                p = p.place(
-                    rng.randint(0, truck_width - w),
-                    rng.randint(0, truck_length - l),
-                    rng.randint(0, truck_height - h),
-                )
-            new_packages.append(p)
+        for i in order:
+            if rng.random() >= p_inside:
+                continue
 
-        return cls(packages=tuple(new_packages), truck=truck)
+            package = state.packages[i]
+
+            if state.total_weight() + package.weight > truck.max_capacity:
+                continue
+
+
+            fit_rotation = [rotation for rotation in range(len(Package.ORIENTATIONS)) if truck.fit(package.get_rotation(rotation).get_dimensions)]
+
+            if not fit_rotation:
+                continue
+
+            for _ in range(max_attempts):
+                oriented = package.get_rotation(rng.choice(fit_rotation))
+
+                w, l, h = oriented.get_dimensions
+
+                support_levels = {0}
+
+                for other in state.inside():
+                    if not other.is_fragile:
+                        support_levels.add(other.get_bounds()[5])
+
+                valid_levels = sorted(z for z in support_levels if z + h <= truck_height)
+
+                x = rng.randint(0, truck_width - w)
+                y = rng.randint(0, truck_length - l)
+                z = rng.choice(valid_levels)
+
+                cand_package = list(state.packages)
+                cand_package[i] = oriented.place(x, y, z)
+
+                candidate = cls(packages=tuple(cand_package), truck=truck,)
+
+                if is_valid(candidate, check_fragile=False):
+                    state = candidate
+                    break
+        return state
 
     def to_dict(self) -> Dict[str, Any]:
         return {

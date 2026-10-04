@@ -34,6 +34,12 @@ class Package:
         if self.position is not None and len(self.position) != 3:
             raise ValueError("Posisi harus (x,y,z).")
         
+        if type(self.is_fragile) is not bool:
+            raise ValueError("is_fragile harus berupa boolean.")
+        
+        if type(self.eta) is not int:
+            raise ValueError("ETA harus berupa integer.")
+
     @property
     def get_dimensions(self) -> Tuple[int, int, int]:
         currentDimension = self.dimensions
