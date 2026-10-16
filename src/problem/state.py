@@ -64,17 +64,6 @@ class State:
             new_packages[i] = p
         return replace(self, packages=tuple(new_packages))
     
-    def objective_function(self) -> int:
-        from .constraints import get_constraints
-        
-        constraint = get_constraints(self, check_fragile=False)
-        
-        if constraint["overlap"] > 0 or constraint["floating"] > 0 or constraint["fragile"] > 0 or constraint["weight"] > 0:
-            return 0
-        
-        wasted_value =  sum(p.value for p in self.packages if not self.truck.contains(p))
-        return self.total_value() - wasted_value
-    
     @classmethod
     def random(
         cls,
@@ -133,7 +122,7 @@ class State:
 
                 candidate = cls(packages=tuple(cand_package), truck=truck,)
 
-                if is_valid(candidate, check_fragile=False):
+                if is_valid(candidate):
                     state = candidate
                     break
         return state

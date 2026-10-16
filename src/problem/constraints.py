@@ -58,7 +58,7 @@ def get_constraints(state: State, check_fragile: bool = True) -> Dict[str, int]:
     return {
         "out_of_bounds": out_of_bounds,
         "overlap": overlap_count,
-        "float": floating_count,
+        "floating": floating_count,
         "fragile": fragile_count,
         "weight": weight,
     }
