@@ -2,8 +2,8 @@ import json
 
 from algorithm.genetic_algorithm import genetic_algorithm
 from algorithm.hill_climbing import (hc_random_restart, hc_sideways_move, hc_steepest_accent, hc_stochastic,)
+from algorithm.simulated_anneling import simulated_annealing
 from problem import State
-from src.algorithm.simulated_anneling import simulated_annealing
 
 
 def read_input(filename):
@@ -18,7 +18,7 @@ def save_result(result, filename):
     data = result.copy()
     data["initial_state"] = result["initial_state"].to_dict()
     data["final_state"] = result["final_state"].to_dict()
-
+    
     name = filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]
     output_path = output_dir + "/" + name + "_result.json"
     with open(output_path, "w", encoding="utf-8") as file:
@@ -136,8 +136,7 @@ def main():
                 print("Masukkan bilangan bulat >= 1.")
 
         result = simulated_annealing(
-            initial_state.packages,
-            initial_state.truck,
+            initial_state=initial_state,
             initial_temperature=initial_temperature,
             cooling_rate=cooling_rate,
             minimum_temperature=minimum_temperature,

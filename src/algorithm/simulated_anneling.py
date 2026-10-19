@@ -3,7 +3,7 @@ import random
 import time
 from typing import Any, Dict, Iterable, List, Optional
 
-from src.problem import Package, State, Truck, get_random_neighbor, objective
+from problem import Package, State, Truck, get_random_neighbor, objective
 
 def exponential_cooling(T_start, alpha, iteration):
     return T_start * (alpha ** iteration)
@@ -39,10 +39,9 @@ def acceptance_probability(
 
 
 def simulated_annealing(
-    packages: Iterable[Package],
-    truck: Truck,
+    initial_state: State,
     initial_temperature: float = 100.0,
-    cooling_rate: float = 0.99,
+    cooling_rate: float = 0.995,
     minimum_temperature: float = 0.1,
     max_iterations: int = 10000,
     seed: Optional[int] = None,
@@ -60,15 +59,13 @@ def simulated_annealing(
         raise ValueError("log_every harus minimal 1.")
 
     rng = random.Random(seed)
-    package_list = tuple(packages)
+    package_list = tuple(initial_state.packages)
     start_time = time.perf_counter()
 
-    current_state = State.random(package_list, truck, rng)
-    initial_state = current_state
-    current_value = objective(current_state, check_fragile)
-    best_state = current_state
-    best_value = current_value
-    objective_history: List[int] = [best_value]
+    initial_value = objective(initial_state, check_fragile)
+    current_state = initial_state
+    current_value = initial_value
+    objective_history: List[int] = [current_value]
     acceptance_factor_history: List[float] = [1.0]
     stuck_frequency = 0
 
@@ -99,15 +96,11 @@ def simulated_annealing(
             )
             acceptance_factor = probability
 
-            if rng.random() < probability:
+            if rng.random() < probability: #rng.random() bisa diubah jadi static value sesuai kebutuhan
                 current_state = candidate_state
                 current_value = candidate_value
 
-                if current_value > best_value:
-                    best_state = current_state
-                    best_value = current_value
-
-        is_stuck = best_value == objective_history[-1]
+        is_stuck = current_value == objective_history[-1]
         if is_stuck:
             stuck_frequency += 1
 
@@ -118,8 +111,7 @@ def simulated_annealing(
             print(
                 f"[Simulated Annealing] Iterasi {iteration:5d} | "
                 f"suhu = {temperature:.4f} | "
-                f"nilai saat ini = {current_value} | "
-                f"nilai terbaik = {best_value}"
+                f"nilai saat ini = {current_value}"
             )
 
         temperature = exponential_cooling(
@@ -132,10 +124,9 @@ def simulated_annealing(
         "algorithm": "simulated_annealing",
         "seed": seed,
         "initial_state": initial_state,
+        "initial_value": initial_value,
         "final_state": current_state,
         "final_value": current_value,
-        "best_state": best_state,
-        "best_value": best_value,
         "objective_history": objective_history,
         "acceptance_factor_history": acceptance_factor_history,
         "e_delta_E_over_T": acceptance_factor_history,
