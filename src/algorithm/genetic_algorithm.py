@@ -9,8 +9,8 @@ MUTATION_PROB = 0.3
 def initial_population(packages, truck, population_size: int, rng: random.Random) -> List[State]:
     return [State.random(packages, truck, rng) for _ in range(population_size)]
 
-def fitness_function(individual: State) -> int:
-    return objective(individual)
+def fitness_function(individual: State, num: int) -> int:
+    return objective(individual, num)
 
 def fitness_percentage(fitness_values: List[int]) -> List[float]:
     total_fitness = sum(fitness_values)
@@ -93,6 +93,7 @@ def mutation(child: State, rng: random.Random, mutation_prob: float = MUTATION_P
 def genetic_algorithm(
     packages,
     truck,
+    num: int,
     population_size: int = 30, #bebas
     generations: int = 50, #bebas
     seed: Optional[int] = None,
@@ -104,15 +105,15 @@ def genetic_algorithm(
     
     population = initial_population(packages, truck, population_size, rng)
 
-    initial_best = max(population, key=fitness_function)
+    initial_best = max(population, key=lambda x: fitness_function(x, num))
     best_state = initial_best
-    best_value = fitness_function(initial_best)
+    best_value = fitness_function(initial_best, num)
 
     best_objective: List[int] = []
     mean_objective: List[float] = []
 
     for iteration in range(generations + 1):
-        fitness_values = [fitness_function(individual) for individual in population]
+        fitness_values = [fitness_function(individual, num) for individual in population]
         probabilities = fitness_percentage(fitness_values)
 
         current_best_index = max(range(population_size), key=lambda i: fitness_values[i])

@@ -39,7 +39,11 @@ def main():
             print("Format JSON tidak valid. Pilih file lain.")
     initial_state = State.random(problem.packages, problem.truck)
     while True:
-        cmd = input("\nAlgoritma yang ingin dipakai (Hill Climbing (HC) | Simulated Annealing (SA) | Genetic Algorithm (GA)): ").strip().lower()
+        cmd = input(
+            "\nAlgoritma yang ingin kau pakai "
+            "(Hill Climbing (HC) | Simulated Annealing (SA) | Genetic Algorithm (GA)): "
+        ).strip().lower()
+        
         if cmd in ("hc", "hill climbing"):
             print("\nPilih opsi Hill Climbing:")
             print("1. Steepest Accent (SA): Mencari neighbor terbaik dari state sekarang; berpotensi stuck di lokal optimum.")
@@ -69,6 +73,16 @@ def main():
             break
         else:
             print("Pilihan tidak tersedia. Masukkan HC, SA, atau GA.")
+    while True:
+        try: 
+            num = input("Pilih objective function (1 = total value, 2 = total value - penalty), 3 = total value / total weight): ")
+            objective_function = int(num) if num else 1
+            if objective_function in (1, 2, 3):
+                break
+            else:
+                print("Pilihan tidak tersedia. Pilih salah satu dari tiga objective function.")
+        except ValueError:
+            print("Masukkan bilangan bulat.")
 
     if algorithm == genetic_algorithm:
         while True:
@@ -94,6 +108,7 @@ def main():
         result = genetic_algorithm(
             initial_state.packages,
             initial_state.truck,
+            num = num,
             population_size=population_size,
             generations=generations,
         )
@@ -140,6 +155,7 @@ def main():
 
         result = simulated_annealing(
             initial_state=initial_state,
+            num=num,
             initial_temperature=initial_temperature,
             cooling_rate=cooling_rate,
             minimum_temperature=minimum_temperature,
@@ -167,7 +183,7 @@ def main():
                     pass
                 print("Masukkan bilangan bulat >= 0.")
 
-            result = algorithm(initial_state, max_sideways=max_sideways, max_iterations=max_iterations)
+            result = algorithm(initial_state, num=num, max_sideways=max_sideways, max_iterations=max_iterations)
         elif algorithm == hc_random_restart:
             while True:
                 value = input("Maximum restart [Default = 10]: ").strip()
@@ -179,9 +195,9 @@ def main():
                     pass
                 print("Masukkan bilangan bulat >= 0.")
 
-            result = algorithm(initial_state, max_restarts=max_restarts, max_iterations=max_iterations)
+            result = algorithm(initial_state, num=num, max_restarts=max_restarts, max_iterations=max_iterations)
         else:
-            result = algorithm(initial_state, max_iterations=max_iterations)
+            result = algorithm(initial_state, num=num, max_iterations=max_iterations)
     output_path = save_result(result, filename)
 
     print(f"\nAlgoritma: {result['algorithm']}")
