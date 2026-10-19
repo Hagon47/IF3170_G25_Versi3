@@ -128,9 +128,7 @@ def simulated_annealing(
         "final_state": current_state,
         "final_value": current_value,
         "objective_history": objective_history,
-        "acceptance_factor_history": acceptance_factor_history,
-        "e_delta_E_over_T": acceptance_factor_history,
-        "acceptance_probability_history": acceptance_factor_history,
+        "acceptance_history": acceptance_factor_history,
         "stuck_frequency": stuck_frequency,
         "duration": duration,
     }
