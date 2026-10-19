@@ -112,7 +112,7 @@ def hc_sideways_move(initial_state: State, max_sideways: int = 100, max_iteratio
         "max_iterations": max_iterations,
         "max_sideways": max_sideways,
         "sideways_count": sideways_count,
-        "duration": duration,
+        "duration": duration
     }
 
 
@@ -149,5 +149,50 @@ def hc_stochastic(initial_state: State, max_iterations: int = 1000, check_fragil
         "objective_values": obj_values,
         "iterations": len(obj_values) - 1,
         "max_iterations": max_iterations,
-        "duration": duration,
+        "duration": duration
+    }
+
+
+def hc_random_restart(initial_state: State, max_restarts: int = 10, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
+    validate_input(initial_state, max_iterations, check_fragile)
+    if type(max_restarts) is not int or max_restarts < 0:
+        raise ValueError("max_restarts harus integer >= 0.")
+
+    start_time = time.perf_counter()
+    cur_state = initial_state
+    initial_value = objective(initial_state, check_fragile)
+    best_state = initial_state
+    best_val = initial_value
+    restart_count = 0
+    iterations_in_restarts = []
+    obj_values = []
+
+    for restart in range(max_restarts + 1):
+        if restart > 0:
+            cur_state = State.random(initial_state.packages, initial_state.truck)
+            restart_count += 1
+
+        result = hc_steepest_accent(cur_state, max_iterations, check_fragile) # seinget gw random restart itu pake SA dl?
+        iterations_in_restarts.append(result["iterations"])
+        obj_values.append(result["objective_values"])
+
+        if result["final_value"] > best_val:
+            best_state = result["final_state"]
+            best_val = result["final_value"]
+
+    duration = time.perf_counter() - start_time
+
+    return {
+        "algorithm": "hc_random_restart",
+        "initial_state": initial_state,
+        "initial_value": initial_value,
+        "final_state": best_state,
+        "final_value": best_val,
+        "objective_values": obj_values,
+        "iterations": sum(iterations_in_restarts),
+        "iterations_in_restarts": iterations_in_restarts,
+        "restart_count": restart_count,
+        "max_restarts": max_restarts,
+        "max_iterations": max_iterations,
+        "duration": duration
     }
