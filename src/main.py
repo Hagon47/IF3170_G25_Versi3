@@ -198,14 +198,14 @@ def main():
 
     if answer in ("y"):
         try:
-            from visualization.visualize import visualize_result
+            from visualization.visualize import visualize
             
         except ImportError as e:
             print(f"Visualisasi tidak tersedia ({e}).")
             return
 
         name = output_path.rsplit("/", 1)[-1].rsplit(".", 1)[0]
-        paths = visualize_result(result, name=name)
+        paths = visualize(result, name=name)
         
         print(f"Visualisasi disimpan di: {paths['html']}")
 
