@@ -76,7 +76,9 @@ class State:
         rng = rng or random.Random()
         max_attempts = 100 # ganti ganti aja ges
 
-        init_pack = tuple(p.remove().get_rotation(rng.randrange(len(Package.ORIENTATIONS))) for p in packages)
+        init_pack = tuple(p.remove().get_rotation(rng.choice([r for r in range(len(Package.ORIENTATIONS)) if truck.fit(p.get_rotation(r).get_dimensions)] or list(range(len(Package.ORIENTATIONS)))))
+            for p in packages
+        )
 
         state = cls(packages=init_pack, truck=truck)
 

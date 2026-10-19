@@ -51,14 +51,14 @@ def main():
             print("3. Stochastic (SC): Generate neighbor secara random, hanya pindah jika nilainya lebih baik.")
             print("4. Random Restart (RR): Ketika pencarian berhenti, mulai ulang dari initial state random yang baru.")
             while True:
-                choice = int(input("Pilih nomor atau nama varian HC: "))
-                if choice in ("1", "steepest accent", "steepest ascent", "SA"):
+                choice = input("Pilih nomor atau nama varian HC: ").strip().lower()
+                if choice in ("1", "steepest accent", "steepest ascent", "sa"):
                     algorithm = hc_steepest_accent
-                elif choice in ("2", "sideways move", "SM"):
+                elif choice in ("2", "sideways move", "sm"):
                     algorithm = hc_sideways_move
-                elif choice in ("3", "stochastic", "SC"):
+                elif choice in ("3", "stochastic", "sc"):
                     algorithm = hc_stochastic
-                elif choice in ("4", "random restart", "RR"):
+                elif choice in ("4", "random restart", "rr"):
                     algorithm = hc_random_restart
                 else:
                     print("Pilihan tidak tersedia. Pilih salah satu dari empat varian HC.")
@@ -86,22 +86,24 @@ def main():
 
     if algorithm == genetic_algorithm:
         while True:
+            value = input("Jumlah populasi [Default = 30]: ").strip()
             try:
-                value = int(input("Jumlah populasi: "))
                 population_size = int(value) if value else 30
                 if population_size >= 1:
                     break
             except ValueError:
-                print("Masukkan bilangan bulat >= 1.")
+                pass
+            print("Masukkan bilangan bulat >= 1.")
 
         while True:
+            value = input("Jumlah generasi [Default = 50]: ").strip()
             try:
-                value = int(input("Jumlah generasi: "))
                 generations = int(value) if value else 50
                 if generations >= 0:
                     break
             except ValueError:
-                print("Masukkan bilangan bulat >= 0.")
+                pass
+            print("Masukkan bilangan bulat >= 0.")
 
         result = genetic_algorithm(
             initial_state.packages,
@@ -112,40 +114,44 @@ def main():
         )
     elif algorithm == simulated_annealing:
         while True:
+            value = input("Initial temperature [Default = 100.0]: ").strip()
             try:
-                value = float(input("Initial temperature [Enter = 100.0]: "))
                 initial_temperature = float(value) if value else 100.0
                 if initial_temperature > 0:
                     break
             except ValueError:
-                print("Masukkan bilangan > 0.")
+                pass
+            print("Masukkan bilangan > 0.")
 
         while True:
+            value = input("Penurunan Temperature [Default = 0.995]: ").strip()
             try:
-                value = float(input("Cooling rate (0 < rate < 1) [Enter = 0.99]: "))
-                cooling_rate = float(value) if value else 0.99
+                cooling_rate = float(value) if value else 0.995
                 if 0 < cooling_rate < 1:
                     break
             except ValueError:
-                print("Masukkan bilangan di antara 0 dan 1.")
+                pass
+            print("Masukkan bilangan di antara 0 dan 1.")
 
         while True:
+            value = input("Minimum temperature [Default = 0.1]: ").strip()
             try:
-                value = float(input("Minimum temperature [Enter = 0.1]: "))
                 minimum_temperature = float(value) if value else 0.1
-                if minimum_temperature >= 0 and minimum_temperature < initial_temperature:
+                if 0 <= minimum_temperature < initial_temperature:
                     break
             except ValueError:
-                print("Masukkan bilangan >= 0 dan lebih kecil dari initial temperature.")
+                pass
+            print("Masukkan bilangan >= 0 dan lebih kecil dari initial temperature.")
 
         while True:
+            value = input("Maximum iterations [Default = 10000]: ").strip()
             try:
-                value = int(input("Maximum iterations: "))
                 max_iterations = int(value) if value else 10000
                 if max_iterations >= 1:
                     break
             except ValueError:
-                print("Masukkan bilangan bulat >= 1.")
+                pass
+            print("Masukkan bilangan bulat >= 1.")
 
         result = simulated_annealing(
             initial_state=initial_state,
@@ -157,34 +163,37 @@ def main():
         )
     else:
         while True:
+            value = input("Maximum iterations (per restart) [Default = 1000]: ").strip()
             try:
-                value = int(input("Maximum iterations (per pencarian untuk random restart): "))
                 max_iterations = int(value) if value else 1000
                 if max_iterations >= 0:
                     break
             except ValueError:
-                print("Masukkan bilangan bulat >= 0.")
+                pass
+            print("Masukkan bilangan bulat >= 0.")
 
         if algorithm == hc_sideways_move:
             while True:
-                value = int(input("Maximum sideways move [Enter = 100]: "))
+                value = input("Maximum sideways move [Default = 100]: ").strip()
                 try:
                     max_sideways = int(value) if value else 100
                     if max_sideways >= 0:
                         break
                 except ValueError:
-                    print("Masukkan bilangan bulat >= 0.")
+                    pass
+                print("Masukkan bilangan bulat >= 0.")
 
             result = algorithm(initial_state, num=num, max_sideways=max_sideways, max_iterations=max_iterations)
         elif algorithm == hc_random_restart:
             while True:
-                value = int(input("Maximum restart (di luar pencarian awal) [Enter = 10]: "))
+                value = input("Maximum restart [Default = 10]: ").strip()
                 try:
                     max_restarts = int(value) if value else 10
                     if max_restarts >= 0:
                         break
                 except ValueError:
-                    print("Masukkan bilangan bulat >= 0.")
+                    pass
+                print("Masukkan bilangan bulat >= 0.")
 
             result = algorithm(initial_state, num=num, max_restarts=max_restarts, max_iterations=max_iterations)
         else:
@@ -197,6 +206,24 @@ def main():
     print(f"Durasi: {result['duration'] * 1000:.2f} ms")
     print(f"Hasil disimpan di: {output_path}")
 
+    while True:
+        answer = input("\nTampilkan visualisasi? (y/n): ").strip().lower()
+        if answer in ("y", "n"):
+            break
+        print("Jawab dengan y atau n.")
+
+    if answer in ("y"):
+        try:
+            from visualization.visualize import visualize
+            
+        except ImportError as e:
+            print(f"Visualisasi tidak tersedia ({e}).")
+            return
+
+        name = output_path.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+        paths = visualize(result, name=name)
+        
+        print(f"Visualisasi disimpan di: {paths['html']}")
 
 if __name__ == "__main__":
     main()

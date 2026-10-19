@@ -64,9 +64,8 @@ def get_all_neighbor(state: State, check_fragile: bool = True) -> List[Neighbor]
 
     #Merotasi paket 90° terhadap sumbu x, y, atau z
     for i in range(n):
-        if state.packages[i].is_placed:
-            for axis in SUMBU_KOORDINAT:
-                collect_neighbor(("rotate", i, axis), state.rotate(i, axis))
+        for axis in SUMBU_KOORDINAT:
+            collect_neighbor(("rotate", i, axis), state.rotate(i, axis))
 
     return [(move, s) for s, move in found.items()]
 
@@ -104,10 +103,7 @@ def get_random_neighbor(
             pos = rng.choice(valid_positions)
             move, candidate = ("move", i, pos), state.move(i, pos)
 
-        else:  #rotate
-            if not inside:
-                continue
-            
+        else:  #rotate            
             i = rng.choice(inside)
             axis = rng.choice(SUMBU_KOORDINAT)
             move, candidate = ("rotate", i, axis), state.rotate(i, axis)
