@@ -3,6 +3,7 @@ import json
 from algorithm.genetic_algorithm import genetic_algorithm
 from algorithm.hill_climbing import (hc_random_restart, hc_sideways_move, hc_steepest_accent, hc_stochastic,)
 from problem import State
+from src.algorithm.simulated_anneling import simulated_annealing
 
 
 def read_input(filename):
@@ -67,8 +68,7 @@ def main():
             algorithm = genetic_algorithm
             break
         elif cmd in ("sa", "simulated annealing"):
-            # print("Simulated Annealing belum tersedia di proyek. Pilih HC atau GA.")
-            # MASUKIN JE
+            algorithm = simulated_annealing
             break
         else:
             print("Pilihan tidak tersedia. Masukkan HC, SA, atau GA.")
@@ -97,6 +97,51 @@ def main():
             initial_state.truck,
             population_size=population_size,
             generations=generations,
+        )
+    elif algorithm == simulated_annealing:
+        while True:
+            try:
+                value = float(input("Initial temperature [Enter = 100.0]: "))
+                initial_temperature = float(value) if value else 100.0
+                if initial_temperature > 0:
+                    break
+            except ValueError:
+                print("Masukkan bilangan > 0.")
+
+        while True:
+            try:
+                value = float(input("Cooling rate (0 < rate < 1) [Enter = 0.99]: "))
+                cooling_rate = float(value) if value else 0.99
+                if 0 < cooling_rate < 1:
+                    break
+            except ValueError:
+                print("Masukkan bilangan di antara 0 dan 1.")
+
+        while True:
+            try:
+                value = float(input("Minimum temperature [Enter = 0.1]: "))
+                minimum_temperature = float(value) if value else 0.1
+                if minimum_temperature >= 0 and minimum_temperature < initial_temperature:
+                    break
+            except ValueError:
+                print("Masukkan bilangan >= 0 dan lebih kecil dari initial temperature.")
+
+        while True:
+            try:
+                value = int(input("Maximum iterations: "))
+                max_iterations = int(value) if value else 10000
+                if max_iterations >= 1:
+                    break
+            except ValueError:
+                print("Masukkan bilangan bulat >= 1.")
+
+        result = simulated_annealing(
+            initial_state.packages,
+            initial_state.truck,
+            initial_temperature=initial_temperature,
+            cooling_rate=cooling_rate,
+            minimum_temperature=minimum_temperature,
+            max_iterations=max_iterations,
         )
     else:
         while True:
