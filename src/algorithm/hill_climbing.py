@@ -12,12 +12,12 @@ def validate_input(initial_state: State, max_iterations: int, check_fragile: boo
         raise ValueError("State awal harus memenuhi constraint!")
 
 
-def best_neighbor(state: State, check_fragile: bool, rng: Optional[random.Random] = None) -> Optional[Tuple[State, int]]:
+def best_neighbor(state: State, check_fragile: bool, num: int, rng: Optional[random.Random] = None) -> Optional[Tuple[State, int]]:
     neighbors = get_all_neighbor(state, check_fragile)
     if not neighbors:
         return None
 
-    scores = [objective(candidate, check_fragile) for _, candidate in neighbors]
+    scores = [objective(candidate, num, check_fragile) for _, candidate in neighbors]
     best_val = max(scores)
     best_states = []
     for i in range(len(neighbors)):
@@ -32,7 +32,9 @@ def best_neighbor(state: State, check_fragile: bool, rng: Optional[random.Random
     return best_state, best_val
 
 
-def hc_steepest_accent(initial_state: State, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
+
+
+def hc_steepest_accent(initial_state: State, num: int, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
     validate_input(initial_state, max_iterations, check_fragile)
     start_time = time.perf_counter()
     current_state = initial_state
@@ -40,7 +42,7 @@ def hc_steepest_accent(initial_state: State, max_iterations: int = 1000, check_f
     obj_values = [current_value]
 
     for _ in range(max_iterations):
-        neighbor = best_neighbor(current_state, check_fragile)
+        neighbor = best_neighbor(current_state, check_fragile, num)
         if neighbor is None:
             break
 
@@ -67,7 +69,8 @@ def hc_steepest_accent(initial_state: State, max_iterations: int = 1000, check_f
     }
 
 
-def hc_sideways_move(initial_state: State, max_sideways: int = 100, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
+
+def hc_sideways_move(initial_state: State, num: int, max_sideways: int = 100, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
     validate_input(initial_state, max_iterations, check_fragile)
     if type(max_sideways) is not int or max_sideways < 0:
         raise ValueError("max_sideways harus berupa integer >= 0.")
@@ -80,7 +83,7 @@ def hc_sideways_move(initial_state: State, max_sideways: int = 100, max_iteratio
     sideways_count = 0
 
     for _ in range(max_iterations):
-        neighbor = best_neighbor(cur_state, check_fragile, rng)
+        neighbor = best_neighbor(cur_state, check_fragile, num, rng)
         if neighbor is None:
             break
 
@@ -116,12 +119,12 @@ def hc_sideways_move(initial_state: State, max_sideways: int = 100, max_iteratio
     }
 
 
-def hc_stochastic(initial_state: State, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
+def hc_stochastic(initial_state: State, num : int, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
     validate_input(initial_state, max_iterations, check_fragile)
     start_time = time.perf_counter()
     rng = random.Random()
     cur_state = initial_state
-    cur_val = objective(cur_state, check_fragile)
+    cur_val = objective(cur_state, num, check_fragile)
     obj_values = [cur_val]
 
     for _ in range(max_iterations):
@@ -153,14 +156,14 @@ def hc_stochastic(initial_state: State, max_iterations: int = 1000, check_fragil
     }
 
 
-def hc_random_restart(initial_state: State, max_restarts: int = 10, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
+def hc_random_restart(initial_state: State, num: int, max_restarts: int = 10, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
     validate_input(initial_state, max_iterations, check_fragile)
     if type(max_restarts) is not int or max_restarts < 0:
         raise ValueError("max_restarts harus integer >= 0.")
 
     start_time = time.perf_counter()
     cur_state = initial_state
-    initial_value = objective(initial_state, check_fragile)
+    initial_value = objective(initial_state, num, check_fragile)
     best_state = initial_state
     best_val = initial_value
     restart_count = 0

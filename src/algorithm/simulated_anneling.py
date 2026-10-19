@@ -40,6 +40,7 @@ def acceptance_probability(
 
 def simulated_annealing(
     initial_state: State,
+    num: int,
     initial_temperature: float = 100.0,
     cooling_rate: float = 0.995,
     minimum_temperature: float = 0.1,
@@ -62,7 +63,7 @@ def simulated_annealing(
     package_list = tuple(initial_state.packages)
     start_time = time.perf_counter()
 
-    initial_value = objective(initial_state, check_fragile)
+    initial_value = objective(initial_state, num, check_fragile)
     current_state = initial_state
     current_value = initial_value
     objective_history: List[int] = [current_value]
@@ -90,7 +91,7 @@ def simulated_annealing(
 
         if neighbor is not None:
             _, candidate_state = neighbor
-            candidate_value = objective(candidate_state, check_fragile)
+            candidate_value = objective(candidate_state, num, check_fragile)
             probability = acceptance_probability(
                 current_value, candidate_value, temperature
             )
