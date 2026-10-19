@@ -2,7 +2,7 @@ import json
 
 from algorithm.genetic_algorithm import genetic_algorithm
 from algorithm.hill_climbing import (hc_random_restart, hc_sideways_move, hc_steepest_accent, hc_stochastic,)
-from src.algorithm.simulated_annealing import simulated_annealing
+from algorithm.simulated_annealing import simulated_annealing
 from problem import State
 
 
