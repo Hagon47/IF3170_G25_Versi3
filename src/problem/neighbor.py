@@ -104,6 +104,9 @@ def get_random_neighbor(
             move, candidate = ("move", i, pos), state.move(i, pos)
 
         else:  #rotate            
+            if not inside:
+                continue
+
             i = rng.choice(inside)
             axis = rng.choice(SUMBU_KOORDINAT)
             move, candidate = ("rotate", i, axis), state.rotate(i, axis)

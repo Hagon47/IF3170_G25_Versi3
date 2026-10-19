@@ -38,7 +38,7 @@ def hc_steepest_accent(initial_state: State, num: int, max_iterations: int = 100
     validate_input(initial_state, max_iterations, check_fragile)
     start_time = time.perf_counter()
     current_state = initial_state
-    current_value = objective(current_state, check_fragile)
+    current_value = objective(current_state, num, check_fragile)
     obj_values = [current_value]
 
     for _ in range(max_iterations):
@@ -78,7 +78,7 @@ def hc_sideways_move(initial_state: State, num: int, max_sideways: int = 100, ma
     start_time = time.perf_counter()
     rng = random.Random()
     cur_state = initial_state
-    cur_val = objective(cur_state, check_fragile)
+    cur_val = objective(cur_state, num, check_fragile)
     obj_values = [cur_val]
     sideways_count = 0
 
@@ -135,7 +135,7 @@ def hc_stochastic(initial_state: State, num : int, max_iterations: int = 1000, c
             
         if neighbor is not None:
             _, next_state = neighbor
-            next_value = objective(next_state, check_fragile)
+            next_value = objective(next_state, num, check_fragile)
             if next_value > cur_val:
                 cur_state, cur_val = next_state, next_value
 
@@ -175,7 +175,7 @@ def hc_random_restart(initial_state: State, num: int, max_restarts: int = 10, ma
             cur_state = State.random(initial_state.packages, initial_state.truck)
             restart_count += 1
 
-        result = hc_steepest_accent(cur_state, max_iterations, check_fragile) # seinget gw random restart itu pake SA dl?
+        result = hc_steepest_accent(cur_state, num=num, max_iterations=max_iterations, check_fragile=check_fragile) # seinget gw random restart itu pake SA dl?
         iterations_in_restarts.append(result["iterations"])
         obj_values.append(result["objective_values"])
 

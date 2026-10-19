@@ -108,7 +108,7 @@ def main():
         result = genetic_algorithm(
             initial_state.packages,
             initial_state.truck,
-            num = num,
+            num=objective_function,
             population_size=population_size,
             generations=generations,
         )
@@ -155,7 +155,7 @@ def main():
 
         result = simulated_annealing(
             initial_state=initial_state,
-            num=num,
+            num=objective_function,
             initial_temperature=initial_temperature,
             cooling_rate=cooling_rate,
             minimum_temperature=minimum_temperature,
@@ -183,7 +183,7 @@ def main():
                     pass
                 print("Masukkan bilangan bulat >= 0.")
 
-            result = algorithm(initial_state, num=num, max_sideways=max_sideways, max_iterations=max_iterations)
+            result = algorithm(initial_state, num=objective_function, max_sideways=max_sideways, max_iterations=max_iterations)
         elif algorithm == hc_random_restart:
             while True:
                 value = input("Maximum restart [Default = 10]: ").strip()
@@ -195,9 +195,9 @@ def main():
                     pass
                 print("Masukkan bilangan bulat >= 0.")
 
-            result = algorithm(initial_state, num=num, max_restarts=max_restarts, max_iterations=max_iterations)
+            result = algorithm(initial_state, num=objective_function, max_restarts=max_restarts, max_iterations=max_iterations)
         else:
-            result = algorithm(initial_state, num=num, max_iterations=max_iterations)
+            result = algorithm(initial_state, num=objective_function, max_iterations=max_iterations)
     output_path = save_result(result, filename)
 
     print(f"\nAlgoritma: {result['algorithm']}")

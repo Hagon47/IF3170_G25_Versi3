@@ -13,6 +13,10 @@ def fitness_function(individual: State, num: int) -> int:
     return objective(individual, num)
 
 def fitness_percentage(fitness_values: List[int]) -> List[float]:
+    min_fitness = min(fitness_values)
+    if min_fitness < 0:
+        fitness_values = [fitness - min_fitness for fitness in fitness_values]
+
     total_fitness = sum(fitness_values)
 
     if total_fitness == 0:
@@ -152,7 +156,7 @@ def genetic_algorithm(
         "mutation_prob": MUTATION_PROB,
         "seed": seed,
         "initial_state": initial_best,
-        "initial_value": fitness_function(initial_best),
+        "initial_value": fitness_function(initial_best, num),
         "final_state": best_state,
         "final_value": best_value,
         "best_objective": best_objective,
