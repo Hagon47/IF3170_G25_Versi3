@@ -2,7 +2,7 @@ import random
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
-from src.problem import State, get_random_neighbor, is_valid, objective
+from problem import State, get_random_neighbor, is_valid, objective
 
 MUTATION_PROB = 0.3
 

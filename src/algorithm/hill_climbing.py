@@ -2,7 +2,7 @@ import random
 import time
 from typing import Any, Dict, Optional, Tuple
 
-from src.problem import State, get_all_neighbor, get_random_neighbor, is_valid, objective
+from problem import State, get_all_neighbor, get_random_neighbor, is_valid, objective
 
 
 def validate_input(initial_state: State, max_iterations: int, check_fragile: bool) -> None:
