@@ -51,7 +51,8 @@ def hc_steepest_accent(initial_state: State, max_iterations: int = 1000, check_f
         current_state, current_value = next_state, next_value
         obj_values.append(current_value)
 
-    duration = time.perf_counter() - start_time
+    end_time = time.perf_counter()
+    duration = end_time - start_time
 
     return {
         "algorithm": "hc_steepest_accent",
@@ -59,10 +60,94 @@ def hc_steepest_accent(initial_state: State, max_iterations: int = 1000, check_f
         "initial_value": obj_values[0],
         "final_state": current_state,
         "final_value": current_value,
-        "objective_history": obj_values,
+        "objective_values": obj_values,
         "iterations": len(obj_values) - 1,
         "max_iterations": max_iterations,
         "duration": duration
     }
 
 
+def hc_sideways_move(initial_state: State, max_sideways: int = 100, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
+    validate_input(initial_state, max_iterations, check_fragile)
+    if type(max_sideways) is not int or max_sideways < 0:
+        raise ValueError("max_sideways harus berupa integer >= 0.")
+
+    start_time = time.perf_counter()
+    rng = random.Random()
+    cur_state = initial_state
+    cur_val = objective(cur_state, check_fragile)
+    obj_values = [cur_val]
+    sideways_count = 0
+
+    for _ in range(max_iterations):
+        neighbor = best_neighbor(cur_state, check_fragile, rng)
+        if neighbor is None:
+            break
+
+        next_state, next_value = neighbor
+        if next_value < cur_val:
+            break
+
+        if next_value == cur_val:
+            if sideways_count >= max_sideways:
+                break
+            sideways_count += 1
+
+        cur_state, cur_val = next_state, next_value
+        obj_values.append(cur_val)
+
+        if max_sideways > 0 and sideways_count == max_sideways:
+            break
+
+    duration = time.perf_counter() - start_time
+
+    return {
+        "algorithm": "hc_sideways_move",
+        "initial_state": initial_state,
+        "initial_value": obj_values[0],
+        "final_state": cur_state,
+        "final_value": cur_val,
+        "objective_values": obj_values,
+        "iterations": len(obj_values) - 1,
+        "max_iterations": max_iterations,
+        "max_sideways": max_sideways,
+        "sideways_count": sideways_count,
+        "duration": duration,
+    }
+
+
+def hc_stochastic(initial_state: State, max_iterations: int = 1000, check_fragile: bool = True) -> Dict[str, Any]:
+    validate_input(initial_state, max_iterations, check_fragile)
+    start_time = time.perf_counter()
+    rng = random.Random()
+    cur_state = initial_state
+    cur_val = objective(cur_state, check_fragile)
+    obj_values = [cur_val]
+
+    for _ in range(max_iterations):
+        if cur_state.packages:
+            neighbor = get_random_neighbor(cur_state, rng, check_fragile=check_fragile)
+        else:
+            neighbor = None
+            
+        if neighbor is not None:
+            _, next_state = neighbor
+            next_value = objective(next_state, check_fragile)
+            if next_value > cur_val:
+                cur_state, cur_val = next_state, next_value
+
+        obj_values.append(cur_val)
+
+    duration = time.perf_counter() - start_time
+
+    return {
+        "algorithm": "hc_stochastic",
+        "initial_state": initial_state,
+        "initial_value": obj_values[0],
+        "final_state": cur_state,
+        "final_value": cur_val,
+        "objective_values": obj_values,
+        "iterations": len(obj_values) - 1,
+        "max_iterations": max_iterations,
+        "duration": duration,
+    }
