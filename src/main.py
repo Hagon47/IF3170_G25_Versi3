@@ -76,7 +76,7 @@ def main():
     while True:
         try: 
             num = input("Pilih objective function (1 = total value, 2 = total value - penalty), 3 = total value / total weight): ")
-            objective_function = int(value) if value else 1
+            objective_function = int(num) if num else 1
             if objective_function in (1, 2, 3):
                 break
             else:

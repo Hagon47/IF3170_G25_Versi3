@@ -1,4 +1,4 @@
-from src.problem import state
+from . import state
 
 from .constraints import _is_above, is_valid
 
